@@ -2,13 +2,11 @@ Name: user.rpc
 ListenOn: 0.0.0.0:8080
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
-  key: user.rpc
-
+  - http://168.10.0.20:2379
+  Key: user.rpc
 
 Mysql:
-  DataSource: root:000000@tcp(127.0.0.1:3306)/user?charset=utf8mb4
-
+  DataSource: root:20031207@tcp(127.0.0.1:3306)/user?charset=utf8mb4
 Cache:
   - Host: 127.0.0.1:6379
     Type: node

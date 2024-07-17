@@ -27,10 +27,9 @@ func (l *UserinfoLogic) Userinfo(req *types.UserReq) (resp *types.UserResp, err 
 
 	//return &types.UserResp{
 	//	Id:    "666",
-	//	Name:  "木兮老师",
+	//	Name:  "llb",
 	//	Phone: "1",
 	//}, nil
-
 	getUserResp, err := l.svcCtx.User.GetUser(l.ctx, &userclient.GetUserReq{
 		Id: req.Id,
 	})

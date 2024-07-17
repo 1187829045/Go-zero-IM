@@ -7,7 +7,6 @@ package user; // 默认包名
 // goctl rpc protoc user.proto --go_out=. --go-grpc_out=. --zrpc_out=.
 
 // 包名
-
 option go_package = "./user";
 
 message Request {}

@@ -39,7 +39,6 @@ func NewUser(cli zrpc.Client) User {
 }
 
 // 定义rpc方法
-
 func (m *defaultUser) GetUser(ctx context.Context, in *GetUserReq, opts ...grpc.CallOption) (*GetUserResp, error) {
 	client := user.NewUserClient(m.cli.Conn())
 	return client.GetUser(ctx, in, opts...)

@@ -22,7 +22,8 @@ func NewGetUserLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GetUserLo
 		Logger: logx.WithContext(ctx),
 	}
 }
-//定义rpc方法
+
+// 定义rpc方法
 func (l *GetUserLogic) GetUser(in *user.GetUserReq) (*user.GetUserResp, error) {
 	if u, ok := users[in.Id]; ok {
 		return &user.GetUserResp{
