@@ -4,7 +4,7 @@ tag='latest'
 
 pod_ip="192.168.128.128"
 
-container_name="llb-easy-chat-user-rpc-test"
+container_name="llb-chat-user-rpc-test"
 
 docker stop ${container_name}
 

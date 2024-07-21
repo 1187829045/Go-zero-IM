@@ -2,7 +2,7 @@
 reso_addr='registry.cn-hangzhou.aliyuncs.com/llb-easy-chat/social-api-dev'
 tag='latest'
 
-container_name="llb-easy-chat-social-api-test"
+container_name="llb-chat-social-api-test"
 
 docker stop ${container_name}
 

@@ -57,6 +57,7 @@ func newFriendsModel(conn sqlx.SqlConn, c cache.CacheConf) *defaultFriendsModel 
 	}
 }
 
+// do
 func (m *defaultFriendsModel) Delete(ctx context.Context, id int64) error {
 	friendsIdKey := fmt.Sprintf("%s%v", cacheFriendsIdPrefix, id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
@@ -83,6 +84,7 @@ func (m *defaultFriendsModel) FindOne(ctx context.Context, id int64) (*Friends, 
 	}
 }
 
+// Do
 func (m *defaultFriendsModel) FindByUidAndFid(ctx context.Context, uid, fid string) (*Friends, error) {
 	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `friend_uid` = ?", friendsRows, m.table)
 
@@ -112,6 +114,7 @@ func (m *defaultFriendsModel) ListByUserid(ctx context.Context, userId string) (
 	}
 }
 
+// Do
 func (m *defaultFriendsModel) Insert(ctx context.Context, data *Friends) (sql.Result, error) {
 	friendsIdKey := fmt.Sprintf("%s%v", cacheFriendsIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {

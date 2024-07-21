@@ -1,8 +1,10 @@
-user-rpc-dev:
-	@make -f deploy/mk/user-rpc.mk release-test
-user-api-dev:
-	@make -f deploy/mk/user-api.mk release-test
+GO = /usr/local/go/bin/go
 
+user-rpc-dev:
+	@make -f deploy/mk/user-rpc.mk GO=$(GO) release-test
+
+user-api-dev:
+	@make -f deploy/mk/user-api.mk GO=$(GO) release-test
 
 release-test: user-rpc-dev user-api-dev
 

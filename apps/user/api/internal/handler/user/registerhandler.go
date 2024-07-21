@@ -1,12 +1,11 @@
 package user
 
 import (
-	"net/http"
-
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"llb-chat/apps/user/api/internal/logic/user"
 	"llb-chat/apps/user/api/internal/svc"
 	"llb-chat/apps/user/api/internal/types"
+	"net/http"
 )
 
 func RegisterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

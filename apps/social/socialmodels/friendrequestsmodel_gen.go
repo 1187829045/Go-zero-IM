@@ -96,6 +96,7 @@ func (m *defaultFriendRequestsModel) FindOne(ctx context.Context, id int64) (*Fr
 	}
 }
 
+// Do
 func (m *defaultFriendRequestsModel) FindByReqUidAndUserId(ctx context.Context, rid, uid string) (*FriendRequests, error) {
 	query := fmt.Sprintf("select %s from %s where `req_uid` = ? and `user_id` = ?", friendRequestsRows, m.table)
 
@@ -126,6 +127,7 @@ func (m *defaultFriendRequestsModel) ListNoHandler(ctx context.Context, userId s
 	}
 }
 
+// Do
 func (m *defaultFriendRequestsModel) Insert(ctx context.Context, data *FriendRequests) (sql.Result, error) {
 	friendRequestsIdKey := fmt.Sprintf("%s%v", cacheFriendRequestsIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
