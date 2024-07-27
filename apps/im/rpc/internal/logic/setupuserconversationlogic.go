@@ -28,6 +28,7 @@ func NewSetUpUserConversationLogic(ctx context.Context, svcCtx *svc.ServiceConte
 }
 
 // 建立会话: 群聊, 私聊
+
 func (l *SetUpUserConversationLogic) SetUpUserConversation(in *im.SetUpUserConversationReq) (*im.SetUpUserConversationResp, error) {
 	// todo: add your logic here and delete this line
 

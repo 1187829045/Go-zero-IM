@@ -2,7 +2,9 @@ package group
 
 import (
 	"context"
+	"llb-chat/apps/im/rpc/imclient"
 	"llb-chat/apps/social/rpc/socialclient"
+	"llb-chat/pkg/constants"
 	"llb-chat/pkg/ctxdata"
 
 	"llb-chat/apps/social/api/internal/svc"
@@ -29,12 +31,23 @@ func (l *GroupPutInLogic) GroupPutIn(req *types.GroupPutInRep) (resp *types.Grou
 	// todo: add your logic here and delete this line
 	uid := ctxdata.GetUId(l.ctx)
 
-	_, err = l.svcCtx.Social.GroupPutin(l.ctx, &socialclient.GroupPutinReq{
+	res, err := l.svcCtx.Social.GroupPutin(l.ctx, &socialclient.GroupPutinReq{
 		GroupId:    req.GroupId,
 		ReqId:      uid,
 		ReqMsg:     req.ReqMsg,
 		ReqTime:    req.ReqTime,
 		JoinSource: int32(req.JoinSource),
 	})
-	return
+
+	if res.GroupId == "" {
+		return nil, err
+	}
+
+	_, err = l.svcCtx.Im.SetUpUserConversation(l.ctx, &imclient.SetUpUserConversationReq{
+		SendId:   uid,
+		RecvId:   res.GroupId,
+		ChatType: int32(constants.GroupChatType),
+	})
+
+	return nil, err
 }

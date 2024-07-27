@@ -8,6 +8,7 @@ import (
 	"llb-chat/pkg/constants"
 	"llb-chat/pkg/wuid"
 	"llb-chat/pkg/xerr"
+	"time"
 
 	"llb-chat/apps/social/rpc/internal/svc"
 	"llb-chat/apps/social/rpc/social"
@@ -60,5 +61,9 @@ func (l *GroupCreateLogic) GroupCreate(in *social.GroupCreateReq) (*social.Group
 		return nil
 	})
 
-	return &social.GroupCreateResp{}, err
+	time.Sleep(2 * time.Second)
+
+	return &social.GroupCreateResp{
+		Id: groups.Id,
+	}, err
 }

@@ -30,6 +30,24 @@ type (
 		Unread         int32  `json:"unread,omitempty"`
 	}
 )
+type (
+	GetChatLogReadRecordsReq {
+		MsgId string `json:"msgId"`
+	}
+	GetChatLogReadRecordsResp {
+		Reads   []string `json:"reads"`
+		UnReads []string `json:"unReads"`
+	}
+)
+
+@server(
+	prefix: v1/im
+	jwt: JwtAuth
+)
+service im {
+	@handler getChatLogReadRecords
+	get /chatlog/readRecords(GetChatLogReadRecordsReq) returns(GetChatLogReadRecordsResp)
+}
 
 // -------------- im api v1 --------------
 
@@ -71,15 +89,15 @@ service im {
 	@doc "根据用户获取聊天记录"
 	@handler getChatLog
 	get /chatlog(ChatLogReq) returns(ChatLogResp)
-
+	
 	@doc "建立会话"
 	@handler setUpUserConversation
 	post /setup/conversation(SetUpUserConversationReq) returns(setUpUserConversationResp)
-
+	
 	@doc "获取会话"
 	@handler getConversations
 	get /conversation(GetConversationsReq) returns(GetConversationsResp)
-
+	
 	@doc "更新会话"
 	@handler putConversations
 	put /conversation(PutConversationsReq) returns(PutConversationsResp)

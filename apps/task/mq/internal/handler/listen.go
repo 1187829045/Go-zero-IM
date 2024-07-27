@@ -20,9 +20,9 @@ func NewListen(svc *svc.ServiceContext) *Listen {
 	return &Listen{svc: svc}
 }
 
-// 返回多个消费者
 func (l *Listen) Services() []service.Service {
 	return []service.Service{
+		kq.MustNewQueue(l.svc.Config.MsgReadTransfer, msgTransfer.NewMsgReadTransfer(l.svc)),
 		// todo: 此处可以加载多个消费者
 		kq.MustNewQueue(l.svc.Config.MsgChatTransfer, msgTransfer.NewMsgChatTransfer(l.svc)),
 	}

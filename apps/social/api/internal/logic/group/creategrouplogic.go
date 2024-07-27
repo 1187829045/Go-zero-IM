@@ -2,6 +2,7 @@ package group
 
 import (
 	"context"
+	"llb-chat/apps/im/rpc/imclient"
 	"llb-chat/apps/social/rpc/socialclient"
 	"llb-chat/pkg/ctxdata"
 
@@ -30,7 +31,7 @@ func (l *CreateGroupLogic) CreateGroup(req *types.GroupCreateReq) (resp *types.G
 	uid := ctxdata.GetUId(l.ctx)
 
 	// 创建群
-	_, err = l.svcCtx.Social.GroupCreate(l.ctx, &socialclient.GroupCreateReq{
+	res, err := l.svcCtx.Social.GroupCreate(l.ctx, &socialclient.GroupCreateReq{
 		Name:       req.Name,
 		Icon:       req.Icon,
 		CreatorUid: uid,
@@ -39,5 +40,15 @@ func (l *CreateGroupLogic) CreateGroup(req *types.GroupCreateReq) (resp *types.G
 		return nil, err
 	}
 
-	return
+	if res.Id == "" {
+		return nil, err
+	}
+
+	// 建立会话
+	_, err = l.svcCtx.Im.CreateGroupConversation(l.ctx, &imclient.CreateGroupConversationReq{
+		GroupId:  res.Id,
+		CreateId: uid,
+	})
+
+	return nil, err
 }

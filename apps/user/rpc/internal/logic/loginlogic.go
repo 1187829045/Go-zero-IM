@@ -2,6 +2,7 @@ package logic
 
 import (
 	"context"
+	"github.com/jinzhu/copier"
 	"github.com/pkg/errors"
 	"llb-chat/pkg/xerr"
 
@@ -59,7 +60,11 @@ func (l *LoginLogic) Login(in *user.LoginReq) (*user.LoginResp, error) {
 		return nil, errors.Wrapf(xerr.NewDBErr(), "ctxdata get jwt token err %v", err)
 	}
 
+	var u user.UserEntity
+	copier.Copy(&u, userEntity)
 	return &user.LoginResp{
+		User:   &u,
+		Id:     userEntity.Id,
 		Token:  token,
 		Expire: now + l.svcCtx.Config.Jwt.AccessExpire,
 	}, nil

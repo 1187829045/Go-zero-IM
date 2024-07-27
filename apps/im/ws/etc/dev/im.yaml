@@ -12,3 +12,7 @@ MsgChatTransfer:
   Topic: msgChatTransfer
   Addrs:
     - 192.168.128.128:9092
+MsgReadTransfer:
+  Topic: msgReadTransfer
+  Addrs:
+    - 192.168.128.128:9092
