@@ -4,7 +4,7 @@ Port: 8881
 
 Redisx:
   Host: 192.168.128.128:16379
-  Pass: llb-easy-chat
+Pass: 20031207
 
 SocialRpc:
   Etcd:

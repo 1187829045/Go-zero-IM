@@ -8,6 +8,8 @@ import (
 	"net/http"
 )
 
+//注册处理函数
+
 func RegisterHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.RegisterReq

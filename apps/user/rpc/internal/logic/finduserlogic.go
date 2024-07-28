@@ -31,7 +31,6 @@ func (l *FindUserLogic) FindUser(in *user.FindUserReq) (*user.FindUserResp, erro
 		userEntitys []*models.Users
 		err         error
 	)
-
 	if in.Phone != "" {
 		userEntity, err := l.svcCtx.UsersModel.FindByPhone(l.ctx, in.Phone)
 		if err == nil {
@@ -40,16 +39,17 @@ func (l *FindUserLogic) FindUser(in *user.FindUserReq) (*user.FindUserResp, erro
 	} else if in.Name != "" {
 		userEntitys, err = l.svcCtx.UsersModel.ListByName(l.ctx, in.Name)
 	} else if len(in.Ids) > 0 {
+		// 否则，如果 Ids 列表长度大于0，通过用户ID列表查找用户
 		userEntitys, err = l.svcCtx.UsersModel.ListByIds(l.ctx, in.Ids)
 	}
-
 	if err != nil {
 		return nil, err
 	}
-
 	var resp []*user.UserEntity
+	// 将 userEntitys 复制到 resp 中
 	copier.Copy(&resp, &userEntitys)
 
+	// 返回查找结果
 	return &user.FindUserResp{
 		User: resp,
 	}, nil

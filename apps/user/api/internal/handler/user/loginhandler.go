@@ -9,6 +9,8 @@ import (
 	"llb-chat/apps/user/api/internal/types"
 )
 
+//登入处理
+
 func LoginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.LoginReq
