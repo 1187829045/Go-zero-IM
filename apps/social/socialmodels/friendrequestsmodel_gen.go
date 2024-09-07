@@ -61,88 +61,122 @@ func newFriendRequestsModel(conn sqlx.SqlConn, c cache.CacheConf) *defaultFriend
 	}
 }
 
-// Do
-// 事务处理
+// Trans 方法用于事务处理
 func (m *defaultFriendRequestsModel) Trans(ctx context.Context, fn func(ctx context.Context,
 	session sqlx.Session) error) error {
+	// 执行事务操作
 	return m.TransactCtx(ctx, func(ctx context.Context, session sqlx.Session) error {
+		// 调用传入的事务处理函数
 		return fn(ctx, session)
 	})
 }
 
+// Delete 方法根据 ID 删除一条好友申请记录，返回错误信息
 func (m *defaultFriendRequestsModel) Delete(ctx context.Context, id int64) error {
+	// 构建缓存键
 	friendRequestsIdKey := fmt.Sprintf("%s%v", cacheFriendRequestsIdPrefix, id)
+	// 执行删除操作
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 构建删除语句
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+		// 执行删除操作并返回结果
 		return conn.ExecCtx(ctx, query, id)
 	}, friendRequestsIdKey)
+	// 返回删除操作的错误信息
 	return err
 }
 
+// FindOne 方法根据 ID 查找一条好友申请记录，返回记录和错误信息
 func (m *defaultFriendRequestsModel) FindOne(ctx context.Context, id int64) (*FriendRequests, error) {
+	// 构建缓存键
 	friendRequestsIdKey := fmt.Sprintf("%s%v", cacheFriendRequestsIdPrefix, id)
-	var resp FriendRequests
+	var resp FriendRequests // 定义返回的好友申请记录变量
+	// 执行查询操作
 	err := m.QueryRowCtx(ctx, &resp, friendRequestsIdKey, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) error {
+		// 构建查询语句
 		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", friendRequestsRows, m.table)
+		// 执行查询操作并将结果存储到 v 变量中
 		return conn.QueryRowCtx(ctx, v, query, id)
 	})
 	switch err {
 	case nil:
+		// 如果没有错误，返回好友申请记录
 		return &resp, nil
 	case sqlc.ErrNotFound:
+		// 如果没有找到记录，返回 ErrNotFound 错误
 		return nil, ErrNotFound
 	default:
+		// 其他错误，返回错误信息
 		return nil, err
 	}
 }
 
-// Do
+// FindByReqUidAndUserId 方法根据请求者 UID 和用户 ID 查找好友申请记录，返回记录和错误信息
 func (m *defaultFriendRequestsModel) FindByReqUidAndUserId(ctx context.Context, rid, uid string) (*FriendRequests, error) {
+	// 构建查询语句
 	query := fmt.Sprintf("select %s from %s where `req_uid` = ? and `user_id` = ?", friendRequestsRows, m.table)
 
-	var resp FriendRequests
+	var resp FriendRequests // 定义返回的好友申请记录变量
+	// 执行查询操作，不使用缓存
 	err := m.QueryRowNoCacheCtx(ctx, &resp, query, rid, uid)
 
 	switch err {
 	case nil:
+		// 如果没有错误，返回好友申请记录
 		return &resp, nil
 	case sqlc.ErrNotFound:
+		// 如果没有找到记录，返回 ErrNotFound 错误
 		return nil, ErrNotFound
 	default:
+		// 其他错误，返回错误信息
 		return nil, err
 	}
 }
 
+// ListNoHandler 方法列出所有未处理的好友申请记录，返回记录列表和错误信息
 func (m *defaultFriendRequestsModel) ListNoHandler(ctx context.Context, userId string) ([]*FriendRequests, error) {
+	// 构建查询语句
 	query := fmt.Sprintf("select %s from %s where `handle_result` = 1 and `user_id` = ?", friendRequestsRows, m.table)
 
-	var resp []*FriendRequests
+	var resp []*FriendRequests // 定义返回的好友申请记录列表变量
+	// 执行查询操作，不使用缓存
 	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, userId)
 
 	switch err {
 	case nil:
+		// 如果没有错误，返回好友申请记录列表
 		return resp, nil
 	default:
+		// 其他错误，返回错误信息
 		return nil, err
 	}
 }
 
-// Do
+// Insert 方法插入一条新的好友申请记录，返回 SQL 结果和错误信息
 func (m *defaultFriendRequestsModel) Insert(ctx context.Context, data *FriendRequests) (sql.Result, error) {
+	// 构建缓存键
 	friendRequestsIdKey := fmt.Sprintf("%s%v", cacheFriendRequestsIdPrefix, data.Id)
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 构建插入语句
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, friendRequestsRowsExpectAutoSet)
+		// 执行插入操作并返回结果
 		return conn.ExecCtx(ctx, query, data.UserId, data.ReqUid, data.ReqMsg, data.ReqTime, data.HandleResult, data.HandleMsg, data.HandledAt)
 	}, friendRequestsIdKey)
+	// 返回插入结果和错误信息
 	return ret, err
 }
 
+// Update 方法更新一条好友申请记录，返回错误信息
 func (m *defaultFriendRequestsModel) Update(ctx context.Context, session sqlx.Session, data *FriendRequests) error {
+	// 构建缓存键
 	friendRequestsIdKey := fmt.Sprintf("%s%v", cacheFriendRequestsIdPrefix, data.Id)
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 构建更新语句
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, friendRequestsRowsWithPlaceHolder)
+		// 执行更新操作并返回结果
 		return session.ExecCtx(ctx, query, data.UserId, data.ReqUid, data.ReqMsg, data.ReqTime, data.HandleResult, data.HandleMsg, data.HandledAt, data.Id)
 	}, friendRequestsIdKey)
+	// 返回更新操作的错误信息
 	return err
 }
 

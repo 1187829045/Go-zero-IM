@@ -26,9 +26,9 @@ var (
 
 type (
 	groupMembersModel interface {
-		Insert(ctx context.Context,session sqlx.Session, data *GroupMembers) (sql.Result, error)
+		Insert(ctx context.Context, session sqlx.Session, data *GroupMembers) (sql.Result, error)
 		FindOne(ctx context.Context, id int64) (*GroupMembers, error)
-		FindByGroudIdAndUserId(ctx context.Context, userId, groupId string)  (*GroupMembers, error)
+		FindByGroudIdAndUserId(ctx context.Context, userId, groupId string) (*GroupMembers, error)
 		ListByUserId(ctx context.Context, userId string) ([]*GroupMembers, error)
 		ListByGroupId(ctx context.Context, groupId string) ([]*GroupMembers, error)
 		Update(ctx context.Context, data *GroupMembers) error
@@ -41,14 +41,14 @@ type (
 	}
 
 	GroupMembers struct {
-		Id            int64          `db:"id"`
-		GroupId       string         `db:"group_id"`
-		UserId        string         `db:"user_id"`
-		RoleLevel     int           `db:"role_level"`
-		JoinTime      sql.NullTime   `db:"join_time"`
-		JoinSource    sql.NullInt64  `db:"join_source"`
-		InviterUid    sql.NullString `db:"inviter_uid"`
-		OperatorUid   string `db:"operator_uid"`
+		Id          int64          `db:"id"`
+		GroupId     string         `db:"group_id"`
+		UserId      string         `db:"user_id"`
+		RoleLevel   int            `db:"role_level"`
+		JoinTime    sql.NullTime   `db:"join_time"`
+		JoinSource  sql.NullInt64  `db:"join_source"`
+		InviterUid  sql.NullString `db:"inviter_uid"`
+		OperatorUid string         `db:"operator_uid"`
 	}
 )
 
@@ -59,8 +59,11 @@ func newGroupMembersModel(conn sqlx.SqlConn, c cache.CacheConf) *defaultGroupMem
 	}
 }
 
+// 删除指定ID的群组成员记录
 func (m *defaultGroupMembersModel) Delete(ctx context.Context, id int64) error {
+	// 构建缓存键
 	groupMembersIdKey := fmt.Sprintf("%s%v", cacheGroupMembersIdPrefix, id)
+	// 执行删除操作
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
 		return conn.ExecCtx(ctx, query, id)
@@ -68,9 +71,12 @@ func (m *defaultGroupMembersModel) Delete(ctx context.Context, id int64) error {
 	return err
 }
 
+// 查找指定ID的群组成员记录
 func (m *defaultGroupMembersModel) FindOne(ctx context.Context, id int64) (*GroupMembers, error) {
+	// 构建缓存键
 	groupMembersIdKey := fmt.Sprintf("%s%v", cacheGroupMembersIdPrefix, id)
 	var resp GroupMembers
+	// 执行查询操作
 	err := m.QueryRowCtx(ctx, &resp, groupMembersIdKey, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) error {
 		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", groupMembersRows, m.table)
 		return conn.QueryRowCtx(ctx, v, query, id)
@@ -85,10 +91,12 @@ func (m *defaultGroupMembersModel) FindOne(ctx context.Context, id int64) (*Grou
 	}
 }
 
-func (m *defaultGroupMembersModel) FindByGroudIdAndUserId(ctx context.Context, userId, groupId string)  (*GroupMembers, error){
+// 根据用户ID和群组ID查找群组成员记录
+func (m *defaultGroupMembersModel) FindByGroudIdAndUserId(ctx context.Context, userId, groupId string) (*GroupMembers, error) {
+	// 构建查询语句
 	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `group_id` = ?", groupMembersRows, m.table)
-
 	var resp GroupMembers
+	// 执行查询操作，不使用缓存
 	err := m.QueryRowNoCacheCtx(ctx, &resp, query, userId, groupId)
 	switch err {
 	case nil:
@@ -96,15 +104,15 @@ func (m *defaultGroupMembersModel) FindByGroudIdAndUserId(ctx context.Context, u
 	default:
 		return nil, err
 	}
-
 }
 
-func (m *defaultGroupMembersModel) ListByUserId(ctx context.Context, userId string) ([]*GroupMembers, error){
+// 列出指定用户ID的所有群组
+func (m *defaultGroupMembersModel) ListByUserId(ctx context.Context, userId string) ([]*GroupMembers, error) {
+	// 构建查询语句
 	query := fmt.Sprintf("select %s from %s where `user_id` = ?", groupMembersRows, m.table)
-
 	var resp []*GroupMembers
+	// 执行查询操作，不使用缓存
 	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, userId)
-
 	switch err {
 	case nil:
 		return resp, nil
@@ -113,12 +121,13 @@ func (m *defaultGroupMembersModel) ListByUserId(ctx context.Context, userId stri
 	}
 }
 
-func (m *defaultGroupMembersModel) ListByGroupId(ctx context.Context, groupId string) ([]*GroupMembers, error){
+// 列出指定群组ID的所有群组成员记录
+func (m *defaultGroupMembersModel) ListByGroupId(ctx context.Context, groupId string) ([]*GroupMembers, error) {
+	// 构建查询语句
 	query := fmt.Sprintf("select %s from %s where `group_id` = ?", groupMembersRows, m.table)
-
 	var resp []*GroupMembers
+	// 执行查询操作，不使用缓存
 	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, groupId)
-
 	switch err {
 	case nil:
 		return resp, nil
@@ -127,23 +136,30 @@ func (m *defaultGroupMembersModel) ListByGroupId(ctx context.Context, groupId st
 	}
 }
 
-
-func (m *defaultGroupMembersModel) Insert(ctx context.Context, session sqlx.Session,data *GroupMembers) (sql.Result, error) {
+// 插入新的群组成员记录
+func (m *defaultGroupMembersModel) Insert(ctx context.Context, session sqlx.Session, data *GroupMembers) (sql.Result, error) {
+	// 构建缓存键，缓存键由前缀和群组成员ID组成
 	groupMembersIdKey := fmt.Sprintf("%s%v", cacheGroupMembersIdPrefix, data.Id)
+	// 执行插入操作
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 构建插入语句，包含所有需要设置的列
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?, ?, ?)", m.table, groupMembersRowsExpectAutoSet)
 		if session != nil {
-			return session.ExecCtx(ctx, query, data.GroupId, data.UserId, data.RoleLevel, data.JoinTime, data.JoinSource,
-				data.InviterUid, data.OperatorUid)
+			// 如果传递了会话对象，则使用会话对象执行插入操作
+			return session.ExecCtx(ctx, query, data.GroupId, data.UserId, data.RoleLevel, data.JoinTime, data.JoinSource, data.InviterUid, data.OperatorUid)
 		}
-		return conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.RoleLevel, data.JoinTime, data.JoinSource,
-			data.InviterUid, data.OperatorUid)
-	}, groupMembersIdKey)
+		// 否则使用默认的数据库连接执行插入操作
+		return conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.RoleLevel, data.JoinTime, data.JoinSource, data.InviterUid, data.OperatorUid)
+	}, groupMembersIdKey) // 传递缓存键，执行缓存操作
+	// 返回插入结果和错误信息
 	return ret, err
 }
 
+// 更新群组成员记录
 func (m *defaultGroupMembersModel) Update(ctx context.Context, data *GroupMembers) error {
+	// 构建缓存键
 	groupMembersIdKey := fmt.Sprintf("%s%v", cacheGroupMembersIdPrefix, data.Id)
+	// 执行更新操作
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, groupMembersRowsWithPlaceHolder)
 		return conn.ExecCtx(ctx, query, data.GroupId, data.UserId, data.RoleLevel, data.JoinTime, data.JoinSource, data.InviterUid, data.OperatorUid, data.Id)

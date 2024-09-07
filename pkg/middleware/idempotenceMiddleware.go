@@ -1,12 +1,7 @@
-/**
- * @author: dn-jinmin/dn-jinmin
- * @doc:
- */
-
 package middleware
 
 import (
-	"imooc.com/easy-chat/pkg/interceptor"
+	"llb-chat/pkg/interceptor"
 	"net/http"
 )
 

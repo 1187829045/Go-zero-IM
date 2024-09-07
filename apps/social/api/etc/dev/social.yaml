@@ -25,4 +25,4 @@ ImRpc:
     Key: im.rpc
 
 JwtAuth:
-  AccessSecret: baidu.com
+  AccessSecret: llb

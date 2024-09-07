@@ -9,6 +9,8 @@ import (
 	"llb-chat/apps/im/api/internal/types"
 )
 
+//这段代码定义了一个 HTTP 处理函数 putConversationsHandler，用于处理 HTTP 请求并执行相应的业务逻辑
+
 func putConversationsHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.PutConversationsReq

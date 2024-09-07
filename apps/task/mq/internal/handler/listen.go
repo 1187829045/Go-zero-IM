@@ -1,8 +1,3 @@
-/**
- * @author: dn-jinmin/dn-jinmin
- * @doc:
- */
-
 package handler
 
 import (
@@ -19,6 +14,8 @@ type Listen struct {
 func NewListen(svc *svc.ServiceContext) *Listen {
 	return &Listen{svc: svc}
 }
+
+//有很多消费者所以要进行监听
 
 func (l *Listen) Services() []service.Service {
 	return []service.Service{

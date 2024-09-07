@@ -8,10 +8,10 @@ import (
 	"strconv"
 )
 
-// 定义一个 WUID 实例变量
+// 定义一个实例变量
 var w *wuid.WUID
 
-// Init 函数用于初始化 WUID 实例
+// 函数用于初始化  实例
 func Init(dsn string) {
 	// 定义一个函数，用于创建和返回一个新的数据库连接
 	newDB := func() (*sql.DB, bool, error) {
@@ -31,7 +31,7 @@ func Init(dsn string) {
 	_ = w.LoadH28FromMysql(newDB, "wuid")
 }
 
-// GenUid 函数用于生成一个唯一 ID
+// 用于生成一个唯一 ID
 func GenUid(dsn string) string {
 	// 如果 WUID 实例尚未初始化，则进行初始化
 	if w == nil {

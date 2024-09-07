@@ -5,20 +5,20 @@ Port: 8882
 ImRpc:
   Etcd:
     Hosts:
-      - 192.168.117.24:3379
+      - 192.168.128.128:3379
     Key: im.rpc
 
 UserRpc:
   Etcd:
     Hosts:
-      - 192.168.117.24:3379
+      - 192.168.128.128:3379
     Key: user.rpc
 
 SocialRpc:
   Etcd:
     Hosts:
-      - 192.168.117.24:3379
+      - 192.168.128.128:3379
     Key: social.rpc
 
 JwtAuth:
-  AccessSecret: imooc.com
+  AccessSecret: llb

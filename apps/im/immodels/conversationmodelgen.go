@@ -68,6 +68,8 @@ func (m *defaultConversationModel) Delete(ctx context.Context, id string) error 
 	_, err = m.conn.DeleteOne(ctx, bson.M{"_id": oid})
 	return err
 }
+
+// 会话的查询
 func (m *defaultConversationModel) ListByConversationIds(ctx context.Context, ids []string) ([]*Conversation, error) {
 	var data []*Conversation
 

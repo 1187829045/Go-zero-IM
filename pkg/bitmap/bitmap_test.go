@@ -5,7 +5,10 @@
 
 package bitmap
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestBitmap_Set(t *testing.T) {
 	b := NewBitmap(5)
@@ -17,6 +20,7 @@ func TestBitmap_Set(t *testing.T) {
 	b.Set("eee")
 	b.Set("fff")
 	for _, bit := range b.bits {
+		fmt.Println(bit)
 		t.Logf("%b, %v", bit, bit)
 	}
 }

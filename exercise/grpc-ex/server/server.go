@@ -1,8 +1,3 @@
-/**
- * @author: dn-jinmin/dn-jinmin
- * @doc:
- */
-
 package main
 
 import (
@@ -17,11 +12,11 @@ import (
 type UserServer struct{}
 
 func (u *UserServer) GetUser(ctx context.Context, req *user.GetUserReq) (*user.GetUserResp, error) {
-	if u, ok := users[req.Id]; ok {
+	if u1, ok := users[req.Id]; ok {
 		return &user.GetUserResp{
-			Id:    u.Id,
-			Name:  u.Name,
-			Phone: u.Phone,
+			Id:    u1.Id,
+			Name:  u1.Name,
+			Phone: u1.Phone,
 		}, nil
 	}
 

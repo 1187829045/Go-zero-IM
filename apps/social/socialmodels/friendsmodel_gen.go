@@ -57,106 +57,144 @@ func newFriendsModel(conn sqlx.SqlConn, c cache.CacheConf) *defaultFriendsModel 
 	}
 }
 
-// do
+// Delete 方法根据 ID 删除一条好友记录，返回错误信息
 func (m *defaultFriendsModel) Delete(ctx context.Context, id int64) error {
+	// 构建缓存键
 	friendsIdKey := fmt.Sprintf("%s%v", cacheFriendsIdPrefix, id)
+	// 执行删除操作
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 构建删除语句
 		query := fmt.Sprintf("delete from %s where `id` = ?", m.table)
+		// 执行删除操作并返回结果
 		return conn.ExecCtx(ctx, query, id)
 	}, friendsIdKey)
+	// 返回删除操作的错误信息
 	return err
 }
 
+// FindOne 方法根据 ID 查找一条好友记录，返回好友记录和错误信息
 func (m *defaultFriendsModel) FindOne(ctx context.Context, id int64) (*Friends, error) {
+	// 构建缓存键
 	friendsIdKey := fmt.Sprintf("%s%v", cacheFriendsIdPrefix, id)
-	var resp Friends
+	var resp Friends // 定义返回的好友记录变量
+	// 执行查询操作
 	err := m.QueryRowCtx(ctx, &resp, friendsIdKey, func(ctx context.Context, conn sqlx.SqlConn, v interface{}) error {
+		// 构建查询语句
 		query := fmt.Sprintf("select %s from %s where `id` = ? limit 1", friendsRows, m.table)
+		// 执行查询操作并将结果存储到 v 变量中
 		return conn.QueryRowCtx(ctx, v, query, id)
 	})
 	switch err {
 	case nil:
+		// 如果没有错误，返回好友记录
 		return &resp, nil
 	case sqlc.ErrNotFound:
+		// 如果没有找到记录，返回 ErrNotFound 错误
 		return nil, ErrNotFound
 	default:
+		// 其他错误，返回错误信息
 		return nil, err
 	}
 }
 
-// Do
+// FindByUidAndFid 方法根据用户 ID 和好友 ID 查找好友记录，返回好友信息
 func (m *defaultFriendsModel) FindByUidAndFid(ctx context.Context, uid, fid string) (*Friends, error) {
+	// 构建查询语句，选择指定字段从指定表中，根据 user_id 和 friend_uid 条件查询
 	query := fmt.Sprintf("select %s from %s where `user_id` = ? and `friend_uid` = ?", friendsRows, m.table)
 
-	var resp Friends
+	var resp Friends // 定义返回的好友记录变量
+	// 执行查询，不使用缓存，并将结果存储到 resp 变量中
 	err := m.QueryRowNoCacheCtx(ctx, &resp, query, uid, fid)
 	switch err {
 	case nil:
+		// 如果没有错误，返回好友记录
 		return &resp, nil
 	case sqlc.ErrNotFound:
+		// 如果没有找到记录，返回 ErrNotFound 错误
 		return nil, ErrNotFound
 	default:
+		// 其他错误，返回错误信息
 		return nil, err
 	}
 }
 
-// Do
+// ListByUserid 方法根据用户 ID 列出其所有好友，返回好友列表
 func (m *defaultFriendsModel) ListByUserid(ctx context.Context, userId string) ([]*Friends, error) {
+	// 构建查询语句，选择指定字段从指定表中，根据 user_id 条件查询
 	query := fmt.Sprintf("select %s from %s where `user_id` = ? ", friendsRows, m.table)
 
 	var resp []*Friends
+	// 执行查询，不使用缓存，并将结果存储到 resp 变量中
 	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, userId)
 	switch err {
 	case nil:
+		// 如果没有错误，返回好友列表
 		return resp, nil
 	default:
+		// 其他错误，返回错误信息
 		return nil, err
 	}
 }
 
-// Do
+// Insert 方法插入一条新的好友记录，返回 SQL 结果
 func (m *defaultFriendsModel) Insert(ctx context.Context, data *Friends) (sql.Result, error) {
+	// 构建缓存键
 	friendsIdKey := fmt.Sprintf("%s%v", cacheFriendsIdPrefix, data.Id)
+	// 执行插入操作
 	ret, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 构建插入语句
 		query := fmt.Sprintf("insert into %s (%s) values (?, ?, ?, ?, ?)", m.table, friendsRowsExpectAutoSet)
+		// 执行插入操作并返回结果
 		return conn.ExecCtx(ctx, query, data.UserId, data.FriendUid, data.Remark, data.AddSource, data.CreatedAt)
 	}, friendsIdKey)
+	// 返回插入结果和错误信息
 	return ret, err
 }
 
-// Do
+// Inserts 方法批量插入好友记录，返回 SQL 结果
 func (m *defaultFriendsModel) Inserts(ctx context.Context, session sqlx.Session, data ...*Friends) (sql.Result, error) {
 	var (
-		sql  strings.Builder
-		args []any
+		sql  strings.Builder // 构建 SQL 语句的字符串构建器
+		args []any           // 存储 SQL 参数的切片
 	)
 
 	if len(data) == 0 {
+		// 如果没有数据要插入，返回 nil
 		return nil, nil
 	}
 
-	// insert into tablename values(数据), (数据)
+	// 构建插入语句的前半部分
 	sql.WriteString(fmt.Sprintf("insert into %s (%s) values ", m.table, friendsRowsExpectAutoSet))
 
 	for i, v := range data {
+		// 为每条记录构建插入语句
 		sql.WriteString("(?, ?, ?, ?, ?)")
+		// 添加每条记录的参数到 args 切片中
 		args = append(args, v.UserId, v.FriendUid, v.Remark, v.AddSource, v.CreatedAt)
 		if i == len(data)-1 {
 			break
 		}
 
+		// 如果不是最后一条记录，添加逗号分隔符
 		sql.WriteString(",")
 	}
 
+	// 执行批量插入操作并返回结果
 	return session.ExecCtx(ctx, sql.String(), args...)
 }
 
+// Update 方法更新一条好友记录，返回错误信息
 func (m *defaultFriendsModel) Update(ctx context.Context, data *Friends) error {
+	// 构建缓存键
 	friendsIdKey := fmt.Sprintf("%s%v", cacheFriendsIdPrefix, data.Id)
+	// 执行更新操作
 	_, err := m.ExecCtx(ctx, func(ctx context.Context, conn sqlx.SqlConn) (result sql.Result, err error) {
+		// 构建更新语句
 		query := fmt.Sprintf("update %s set %s where `id` = ?", m.table, friendsRowsWithPlaceHolder)
+		// 执行更新操作并返回结果
 		return conn.ExecCtx(ctx, query, data.UserId, data.FriendUid, data.Remark, data.AddSource, data.CreatedAt, data.Id)
 	}, friendsIdKey)
+	// 返回更新操作的错误信息
 	return err
 }
 

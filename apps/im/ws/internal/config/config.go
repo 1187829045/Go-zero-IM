@@ -1,8 +1,3 @@
-/**
- * @author: dn-jinmin/dn-jinmin
- * @doc:
- */
-
 package config
 
 import (
@@ -11,9 +6,9 @@ import (
 )
 
 type Config struct {
-	service.ServiceConf
+	service.ServiceConf //依赖go-zero 日志提供，性能监听
 
-	ListenOn string
+	ListenOn string //监听地址
 
 	JwtAuth struct {
 		AccessSecret string

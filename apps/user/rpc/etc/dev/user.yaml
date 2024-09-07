@@ -19,5 +19,5 @@ Cache:
     Pass: "20031207"
 
 Jwt:
-  AccessSecret: baidu.com
+  AccessSecret: llb
   AccessExpire: 8640000

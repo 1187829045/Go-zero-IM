@@ -30,7 +30,7 @@ Redisx:
   Pass: easy-chat
 
 Mongo:
-  Url: "mongodb://root:llb-easy-chat@192.168.128.128:47017"
+  Url: "mongodb://root:20031207@192.168.128.128:47017"
   Db: easy-chat
 
 SocialRpc:

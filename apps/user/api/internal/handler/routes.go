@@ -9,33 +9,43 @@ import (
 
 	"github.com/zeromicro/go-zero/rest"
 )
-//设置路由
+
+// 设置路由
+// RegisterHandlers 函数用于将一组路由注册到指定的 REST 服务器上。
+// 该函数接收两个参数：
+// 1. server - 一个 REST 服务器实例。
+// 2. serverCtx - 服务上下文，包含配置、数据库连接等信息。
 func RegisterHandlers(server *rest.Server, serverCtx *svc.ServiceContext) {
+
+	// 使用 server.AddRoutes 方法为注册和登录功能添加路由。
+	// 第一个参数是一个包含多个路由的切片，每个路由包括请求方法、路径和处理函数。
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodPost,
-				Path:    "/register",
-				Handler: user.RegisterHandler(serverCtx),
+				Method:  http.MethodPost,                 // 设置请求方法为 POST。
+				Path:    "/register",                     // 设置路由路径为 /register。
+				Handler: user.RegisterHandler(serverCtx), // 设置处理函数为注册处理函数。
 			},
 			{
-				Method:  http.MethodPost,
-				Path:    "/login",
-				Handler: user.LoginHandler(serverCtx),
+				Method:  http.MethodPost,              // 设置请求方法为 POST。
+				Path:    "/login",                     // 设置路由路径为 /login。
+				Handler: user.LoginHandler(serverCtx), // 设置处理函数为登录处理函数。
 			},
 		},
-		rest.WithPrefix("/v1/user"),
+		rest.WithPrefix("/v1/user"), // 为这些路由添加前缀 "/v1/user"。
 	)
 
+	// 再次使用 server.AddRoutes 方法为获取用户详情功能添加路由。
 	server.AddRoutes(
 		[]rest.Route{
 			{
-				Method:  http.MethodGet,
-				Path:    "/user",
-				Handler: user.DetailHandler(serverCtx),
+				Method:  http.MethodGet,                // 设置请求方法为 GET。
+				Path:    "/user",                       // 设置路由路径为 /user。
+				Handler: user.DetailHandler(serverCtx), // 设置处理函数为获取用户详情的处理函数。
 			},
 		},
+		// 为这些路由启用 JWT 认证，使用 serverCtx.Config.JwtAuth.AccessSecret 作为密钥。
 		rest.WithJwt(serverCtx.Config.JwtAuth.AccessSecret),
-		rest.WithPrefix("/v1/user"),
+		rest.WithPrefix("/v1/user"), // 为这些路由添加前缀 "/v1/user"。
 	)
 }

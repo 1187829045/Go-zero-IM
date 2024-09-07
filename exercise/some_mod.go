@@ -2,7 +2,16 @@ package exercise
 
 //用于记录一些常用的结构体
 import (
+	"context"
+	"database/sql"
+	"fmt"
 	"github.com/zeromicro/go-zero/core/service"
+	"github.com/zeromicro/go-zero/core/stores/builder"
+	"github.com/zeromicro/go-zero/core/stores/sqlc"
+	"github.com/zeromicro/go-zero/core/stores/sqlx"
+	"github.com/zeromicro/go-zero/core/stringx"
+	"llb-chat/pkg/constants"
+	"strings"
 	"time"
 )
 
@@ -70,5 +79,77 @@ type (
 		TraceIgnorePaths []string `json:",optional"`
 	}
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	MsgChatTransfer struct {
+		MsgId string `mapstructure:"msgId"`
 
+		ConversationId     string `json:"conversationId"`
+		constants.ChatType `json:"chatType"`
+		SendId             string   `json:"sendId"`
+		RecvId             string   `json:"recvId"`
+		RecvIds            []string `json:"recvIds"` // 接收者ID列表，表示消息接收方的用户ID列表（群聊）
+		SendTime           int64    `json:"sendTime"`
+
+		constants.MType `json:"mType"` // 消息类型，使用常量定义，可能是文本、图片、视频等
+		Content         string         `json:"content"` // 消息内容，表示消息的实际内容
+	}
+
+	// MsgMarkRead 结构体表示已读消息的标记信息
+	MsgMarkRead struct {
+		constants.ChatType `json:"chatType"` // 聊天类型，使用常量定义，可能是单聊或群聊
+		ConversationId     string            `json:"conversationId"` // 会话ID，表示消息所属的会话
+		SendId             string            `json:"sendId"`         // 发送者ID，表示消息发送方的用户ID
+		RecvId             string            `json:"recvId"`         // 接收者ID，表示消息接收方的用户ID
+		MsgIds             []string          `json:"msgIds"`         // 消息ID列表，表示已读的消息ID列表
+	}
 )
+
+var (
+	groupMembersFieldNames          = builder.RawFieldNames(&GroupMembers{})
+	groupMembersRows                = strings.Join(groupMembersFieldNames, ",")
+	groupMembersRowsExpectAutoSet   = strings.Join(stringx.Remove(groupMembersFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), ",")
+	groupMembersRowsWithPlaceHolder = strings.Join(stringx.Remove(groupMembersFieldNames, "`id`", "`create_at`", "`create_time`", "`created_at`", "`update_at`", "`update_time`", "`updated_at`"), "=?,") + "=?"
+
+	cacheGroupMembersIdPrefix = "cache:groupMembers:id:"
+)
+
+type (
+	groupMembersModel interface {
+		Insert(ctx context.Context, session sqlx.Session, data *GroupMembers) (sql.Result, error)
+		FindOne(ctx context.Context, id int64) (*GroupMembers, error)
+		FindByGroudIdAndUserId(ctx context.Context, userId, groupId string) (*GroupMembers, error)
+		ListByUserId(ctx context.Context, userId string) ([]*GroupMembers, error)
+		ListByGroupId(ctx context.Context, groupId string) ([]*GroupMembers, error)
+		Update(ctx context.Context, data *GroupMembers) error
+		Delete(ctx context.Context, id int64) error
+	}
+
+	defaultGroupMembersModel struct {
+		sqlc.CachedConn
+		table string
+	}
+
+	GroupMembers struct {
+		Id          int64          `db:"id"`
+		GroupId     string         `db:"group_id"`
+		UserId      string         `db:"user_id"`
+		RoleLevel   int            `db:"role_level"`
+		JoinTime    sql.NullTime   `db:"join_time"`
+		JoinSource  sql.NullInt64  `db:"join_source"`
+		InviterUid  sql.NullString `db:"inviter_uid"`
+		OperatorUid string         `db:"operator_uid"`
+	}
+)
+
+func (m *defaultGroupMembersModel) ListByUserId(ctx context.Context, userId string) ([]*GroupMembers, error) {
+	// 构建查询语句
+	query := fmt.Sprintf("select %s from %s where `user_id` = ?", groupMembersRows, m.table)
+	var resp []*GroupMembers
+	// 执行查询操作，不使用缓存
+	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, userId)
+	switch err {
+	case nil:
+		return resp, nil
+	default:
+		return nil, err
+	}
+}

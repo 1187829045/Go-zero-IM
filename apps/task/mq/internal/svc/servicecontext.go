@@ -1,8 +1,3 @@
-/**
- * @author: dn-jinmin/dn-jinmin
- * @doc:
- */
-
 package svc
 
 import (
@@ -46,7 +41,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 	header.Set("Authorization", token)
 	svc.WsClient = websocket.NewClient(c.Ws.Host,
 		websocket.WithClientHeader(header),
-		websocket.WithClientDiscover(websocket.NewRedisDiscover(header, constants.REDIS_DISCOVER_SRV, c.Redisx)),
+		//websocket.WithClientDiscover(websocket.NewRedisDiscover(header, constants.REDIS_DISCOVER_SRV, c.Redisx)),
 	)
 	return svc
 }

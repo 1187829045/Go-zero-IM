@@ -21,7 +21,7 @@ UserRpc:
     # etcd 中用于 UserRpc 服务的键（key），标识此服务在 etcd 中的注册信息
 
 JwtAuth:
-  AccessSecret: baidu.com
+  AccessSecret: llb
   # 用于 JWT 认证的密钥（secret），在生成和验证 JWT 时使用
 
   AccessExpire: 864000

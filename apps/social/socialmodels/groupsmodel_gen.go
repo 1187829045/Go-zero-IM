@@ -102,17 +102,23 @@ func (m *defaultGroupsModel) Insert(ctx context.Context, session sqlx.Session, d
 }
 
 func (m *defaultGroupsModel) ListByGroupIds(ctx context.Context, ids []string) ([]*Groups, error) {
+	// 构建查询语句
 	query := fmt.Sprintf("select %s from %s where `id` in (?)", groupsRows, m.table)
 
-	var resp []*Groups
+	var resp []*Groups // 定义返回的群组记录列表变量
 
+	// 将群组ID列表转换为字符串形式，使用单引号包裹并用逗号分隔
 	idStr := strings.Join(ids, "','")
+
+	// 执行查询操作，不使用缓存
 	err := m.QueryRowsNoCacheCtx(ctx, &resp, query, idStr)
 
 	switch err {
 	case nil:
+		// 如果没有错误，返回群组记录列表
 		return resp, nil
 	default:
+		// 其他错误，返回错误信息
 		return nil, err
 	}
 }

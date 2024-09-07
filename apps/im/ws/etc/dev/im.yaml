@@ -1,18 +1,24 @@
+# 服务名称和监听的端口
 Name: im.ws
 ListenOn: 0.0.0.0:10090
 
+# JWT 认证配置
 JwtAuth:
-  AccessSecret: baidu.com
+  AccessSecret: llb # 用于生成和验证 JWT 的密钥
 
+# MongoDB 数据库配置
 Mongo:
-  Url: "mongodb://root:llb-easy-chat@192.168.128.128:47017"
-  Db: llb-easy-chat
+  Url: "mongodb://root:20031207@192.168.128.128:47017" # MongoDB 的连接 URL，包括用户名、密码和地址
+  Db: llb-easy-chat # 使用的数据库名称
 
+# 消息聊天转发的 Kafka 配置
 MsgChatTransfer:
-  Topic: msgChatTransfer
+  Topic: msgChatTransfer # Kafka 中用于消息聊天转发的主题名称
   Addrs:
-    - 192.168.128.128:9092
+    - 192.168.128.128:9092 # Kafka 服务器的地址和端口
+
+# 消息阅读转发的 Kafka 配置
 MsgReadTransfer:
-  Topic: msgReadTransfer
+  Topic: msgReadTransfer # Kafka 中用于消息阅读转发的主题名称
   Addrs:
-    - 192.168.128.128:9092
+    - 192.168.128.128:9092 # Kafka 服务器的地址和端口

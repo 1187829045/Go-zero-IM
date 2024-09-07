@@ -14,6 +14,7 @@ import (
 
 // 定义 DetailLogic 结构体
 // 包含 Logger、context.Context 和 *svc.ServiceContext
+//处理用户详细信息查询的逻辑层结构体。
 
 type DetailLogic struct {
 	logx.Logger

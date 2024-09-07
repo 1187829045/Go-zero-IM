@@ -1,8 +1,3 @@
-/**
- * @author: dn-jinmin/dn-jinmin
- * @doc:
- */
-
 package svc
 
 import (
@@ -11,12 +6,14 @@ import (
 	"llb-chat/apps/task/mq/mqclient"
 )
 
+//整个服务的上下文和全局属性
+
 type ServiceContext struct {
 	Config config.Config
 
 	immodels.ChatLogModel
-	mqclient.MsgChatTransferClient
-	mqclient.MsgReadTransferClient
+	mqclient.MsgChatTransferClient //消息推送到 Kafka
+	mqclient.MsgReadTransferClient //推送已读消息Kafka
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
