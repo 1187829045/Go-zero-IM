@@ -29,7 +29,8 @@ func NewFriendPutInLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Frien
 	}
 }
 
-// FriendPutIn 方法处理好友申请的逻辑
+// 处理好友申请的逻辑
+
 func (l *FriendPutInLogic) FriendPutIn(in *social.FriendPutInReq) (*social.FriendPutInResp, error) {
 	// todo: 在这里添加逻辑并删除此行
 

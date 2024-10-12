@@ -1,8 +1,3 @@
-/**
- * @author: dn-jinmin/dn-jinmin
- * @doc:
- */
-
 package xerr
 
 import "github.com/zeromicro/x/errors"

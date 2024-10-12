@@ -283,7 +283,7 @@ func (s *Server) handlerWrite(conn *Conn) {
 	}
 }
 
-// 添加连接llb
+// 添加连接
 func (s *Server) addConn(conn *Conn, req *http.Request) {
 	uid := s.authentication.UserId(req) // 从请求中获取用户ID
 
@@ -301,6 +301,7 @@ func (s *Server) addConn(conn *Conn, req *http.Request) {
 }
 
 // 根据用户ID获取连接
+
 func (s *Server) GetConn(uid string) *Conn {
 	s.RWMutex.RLock()
 	defer s.RWMutex.RUnlock()
@@ -309,6 +310,7 @@ func (s *Server) GetConn(uid string) *Conn {
 }
 
 // 根据用户ID列表获取连接列表
+
 func (s *Server) GetConns(uids ...string) []*Conn {
 	if len(uids) == 0 {
 		return nil
@@ -324,7 +326,7 @@ func (s *Server) GetConns(uids ...string) []*Conn {
 	return res
 }
 
-// 根据连接列表获取用户ID列表llb
+// 根据连接列表获取用户ID列表
 
 func (s *Server) GetUsers(conns ...*Conn) []string {
 
@@ -349,7 +351,7 @@ func (s *Server) GetUsers(conns ...*Conn) []string {
 	return res
 }
 
-// 关闭连接 ok
+// 关闭连接
 func (s *Server) Close(conn *Conn) {
 	s.RWMutex.Lock()
 	defer s.RWMutex.Unlock()
